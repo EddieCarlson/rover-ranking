@@ -87,13 +87,12 @@ Suppose there is a sitter whose Profile Score is 2.5 and who gets a rating of
 
 ## Discussion Question
 
-Imagine you are designing a production web application based on the exercise you've just completed. The application will compute the search scores
-for sitters, return a list of search results based on those scores, and display them to the user through a web UI. Please answer **ONE** of the following discussion questions about the approach you'd take:
+Imagine you are designing a production web application to compute the search scores for sitters and to return a list of sitters for search results. How would you do it? Please answer **ONE** of the following discussion questions about the approach you'd take:
 
-- How would you adjust the calculation and storage of search scores in a production application?
-- Describe a technical implementation for the frontend / UI for this application. How would the frontend manage state?
-- What infrastructure choices might you make to build and host this project at scale? Suppose your web application must return fast search results with a peak of 10 searches per second. 
-- Describe how you would approach API design for a backend service to provide sitter and rank data to a client/web frontend.
+- Data Scientists want to perform offline computations that are then used to compute the search scores served in the production application. How would you design a pipeline to do this?
+- What infrastructure choices might you make to build and host this project at scale? Suppose your web application must return fast search results with a peak of 10 searches per second.
+- We calculate search scores infrequently but we then access them frequently throughout the day. How should we structure the data to optimize resource utilization? What would be a good data storage solution and why?
+- Describe how you would approach API design for a backend service to provide sitter and rank data to a client.
 
 Write your answer in the README inside your project github repo. Your answer should not exceed 400 words.
 
