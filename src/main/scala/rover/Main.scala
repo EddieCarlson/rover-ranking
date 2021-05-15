@@ -8,9 +8,7 @@ object Main extends App {
   val filepath = args.head
 
   val sitterReviews = SitterReview.parse(filepath)
-  val sitterScores = sitterReviews.groupBy(info => (info.name, info.email)).map {
-    case ((name, email), infos) => SitterScore(name, email, infos.map(_.rating))
-  }.toList
+  val sitterScores = SitterScore.fromReviews(sitterReviews)
 
   SitterWriter.write(sitterScores.sorted)
 }

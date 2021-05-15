@@ -1,6 +1,7 @@
 package rover
 
 import SitterScore.twoDecimal
+import Scoring.{profileScore, searchScore}
 
 case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double) {
   def format: String =
@@ -8,7 +9,6 @@ case class SitterScore(name: String, email: String, profileScore: Double, rating
 }
 
 object SitterScore {
-  val alphabetSize = 26
   val twoDecimalFormat = "%.2f"
 
   def apply(name: String, email: String, ratings: List[Int]): SitterScore = {
@@ -19,16 +19,10 @@ object SitterScore {
     SitterScore(name, email, profScore, ratingsScore, srchScore)
   }
 
-  def profileScore(name: String): Double = {
-    val distinctLetters = name.toLowerCase.replaceAll("[^a-z]", "").toSet.size
-    5.0 * distinctLetters / alphabetSize
-  }
-
-  def searchScore(profileScore: Double, ratingsScore: Double, numRatings: Int): Double = {
-    val ratingsWeight = Math.min(Math.max(numRatings / 10.0, 0), 1)
-    val profileWeight = 1 - ratingsWeight
-    (ratingsScore * ratingsWeight) + (profileScore * profileWeight)
-  }
+  def fromReviews(reviews: List[SitterReview]): List[SitterScore] =
+    reviews.groupBy(review => (review.name, review.email)).map {
+      case ((name, email), reviews) => SitterScore(name, email, reviews.map(_.rating))
+    }.toList
 
   def twoDecimal(d: Double): String = twoDecimalFormat.format(d)
 
@@ -40,4 +34,3 @@ object SitterScore {
     }
   }
 }
-
