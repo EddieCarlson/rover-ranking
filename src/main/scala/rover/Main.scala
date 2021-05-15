@@ -1,7 +1,5 @@
 package rover
 
-import SitterScore.sitterScoreOrdering
-
 object Main extends App {
 
   // TODO: make safe

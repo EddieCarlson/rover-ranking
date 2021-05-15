@@ -3,9 +3,18 @@ package rover
 import SitterScore.twoDecimal
 import Scoring.{profileScore, searchScore}
 
-case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double) {
+case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double)
+  extends Ordered[SitterScore] {
+
   def format: String =
     s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},${twoDecimal(searchScore)}\n"
+
+  def compare(that: SitterScore): Int =
+    if (searchScore == that.searchScore) {
+      name.compare(that.name) // asc by name if scores are tied
+    } else {
+      that.searchScore.compare(searchScore) // desc by scores
+    }
 }
 
 object SitterScore {
@@ -25,12 +34,4 @@ object SitterScore {
     }.toList
 
   def twoDecimal(d: Double): String = twoDecimalFormat.format(d)
-
-  implicit val sitterScoreOrdering: Ordering[SitterScore] = (x: SitterScore, y: SitterScore) => {
-    if (x.searchScore == y.searchScore) {
-      x.name.compare(y.name) // asc by name if scores are tied
-    } else {
-      y.searchScore.compare(x.searchScore) // desc by scores
-    }
-  }
 }
