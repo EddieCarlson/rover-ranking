@@ -31,5 +31,13 @@ object SitterScore {
   }
 
   def twoDecimal(d: Double): String = twoDecimalFormat.format(d)
+
+  implicit val sitterScoreOrdering: Ordering[SitterScore] = (x: SitterScore, y: SitterScore) => {
+    if (x.searchScore == y.searchScore) {
+      x.name.compare(y.name) // asc by name if scores are tied
+    } else {
+      y.searchScore.compare(x.searchScore) // desc by scores
+    }
+  }
 }
 

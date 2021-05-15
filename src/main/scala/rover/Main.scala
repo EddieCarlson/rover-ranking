@@ -1,5 +1,7 @@
 package rover
 
+import SitterScore.sitterScoreOrdering
+
 object Main extends App {
 
   // TODO: make safe
@@ -10,8 +12,5 @@ object Main extends App {
     case ((name, email), infos) => SitterScore(name, email, infos.map(_.rating))
   }.toList
 
-  val sortedScoreGroups = sitterScores.groupBy(_.searchScore).toList.sortBy(_._1).reverse.map(_._2)
-  val sortedScores = sortedScoreGroups.flatMap(_.sortBy(_.name))
-
-  SitterWriter.write(sortedScores)
+  SitterWriter.write(sitterScores.sorted)
 }
