@@ -5,7 +5,6 @@ import org.scalatest.matchers.should.Matchers
 import Scoring._
 
 class ScoringTests extends AnyFlatSpec with Matchers {
-
   val jimProfScore: Double = 5.0 * 3 / 26
 
   "profile score" should "calculate simple case" in { profileScore("jim") shouldEqual jimProfScore +- 0.0001 }
@@ -26,19 +25,19 @@ class ScoringTests extends AnyFlatSpec with Matchers {
     searchScore(2, 1, 10) shouldEqual 1.0 +- 0.0001
   }
 
-  "search score" should "cap at 10" in {
+  it should "cap at 10" in {
     searchScore(2, 1, 100) shouldEqual 1.0 +- 0.0001
   }
 
-  "search score" should "work with 1 rating" in {
+  it should "work with 1 rating" in {
     searchScore(2, 1, 1) shouldEqual ((2 * 0.9) + (1 * 0.1)) +- 0.0001
   }
 
-  "search score" should "work with 4 ratings" in {
+  it should "work with 4 ratings" in {
     searchScore(2, 1, 4) shouldEqual ((2 * 0.6) + (1 * 0.4)) +- 0.0001
   }
 
-  "search score" should "work with 7 ratings and non-ints" in {
+  it should "work with 7 ratings and non-ints" in {
     searchScore(2.1, 1.1, 7) shouldEqual ((2.1 * 0.3) + (1.1 * 0.7)) +- 0.0001
   }
 }

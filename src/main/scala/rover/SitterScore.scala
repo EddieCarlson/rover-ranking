@@ -22,7 +22,7 @@ object SitterScore {
 
   def apply(name: String, email: String, ratings: List[Int]): SitterScore = {
     val profScore = profileScore(name)
-    val ratingsLength = ratings.length
+    val ratingsLength = ratings.length // guaranteed non-empty
     val ratingsScore = ratings.sum.toDouble / ratingsLength
     val srchScore = searchScore(profScore, ratingsScore, ratingsLength)
     SitterScore(name, email, profScore, ratingsScore, srchScore)

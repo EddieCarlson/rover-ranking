@@ -56,11 +56,11 @@ class SitterScoreTests extends AnyFlatSpec with Matchers {
 
   "sorting" should "sort first by search score (desc), then by name (asc)" in {
     val scores = List(
-      SitterScore("a", "aa", 1, 2.1, 3.1),
+      SitterScore("a", "aa", 1.0, 2.1, 3.1),
       SitterScore("c", "cc", 1.1, 2, 3.2),
-      SitterScore("b", "bb", 1.1, 2, 3.2),
-      SitterScore("d", "dd", 1.1, 2, 3.0),
-      SitterScore("e", "dd", 1.1, 2, 3.1),
+      SitterScore("b", "bb", 3, 2.2, 3.2),
+      SitterScore("d", "dd", 4.3, 1.1, 3.0),
+      SitterScore("e", "dd", 1.4, 5, 3.1),
     )
 
     scores.sorted.map(_.name) shouldEqual List("b", "c", "a", "e", "d")
