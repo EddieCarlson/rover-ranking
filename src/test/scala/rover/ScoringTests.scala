@@ -6,19 +6,21 @@ import Scoring._
 
 class ScoringTests extends AnyFlatSpec with Matchers {
 
-  "profile score" should "calculate simple case" in { profileScore("jim") shouldEqual 5.0 * 3 / 26 +- 0.0001 }
+  val jimProfScore: Double = 5.0 * 3 / 26
 
-  it should "ignore duplicates" in { profileScore("jiiiimmmmmm") shouldEqual 5.0 * 3 / 26 +- 0.0001 }
+  "profile score" should "calculate simple case" in { profileScore("jim") shouldEqual jimProfScore +- 0.0001 }
 
-  it should "ignore capitalization" in { profileScore("jimM") shouldEqual 5.0 * 3 / 26 +- 0.0001 }
+  it should "ignore duplicates" in { profileScore("jiiiimmmmmm") shouldEqual jimProfScore +- 0.0001 }
 
-  it should "ignore spaces" in { profileScore("   j   im       ") shouldEqual 5.0 * 3 / 26 +- 0.0001 }
+  it should "ignore capitalization" in { profileScore("jimM") shouldEqual jimProfScore +- 0.0001 }
 
-  it should "ignore other non-letters" in { profileScore("  ~ j ]  i-m.    ^   ") shouldEqual 5.0 * 3 / 26 +- 0.0001 }
+  it should "ignore spaces" in { profileScore("   j   im       ") shouldEqual jimProfScore +- 0.0001 }
+
+  it should "ignore other non-english-letters" in { profileScore("~üj]i-m.^") shouldEqual jimProfScore +- 0.0001 }
 
   it should "calculate provided test" in { profileScore("Lelani R.") shouldEqual 5.0 * 6 / 26 +- 0.0001 }
 
-  it should "do it all" in { profileScore("A $really---___--    bad nAMMMmmme") shouldEqual 5.0 * 9 / 26 +- 0.0001 }
+  it should "do it all" in { profileScore("A $really-__--   ü  bad nAMMMmmme") shouldEqual 5.0 * 9 / 26 +- 0.0001 }
 
   "search score" should "calculate with 10 ratings" in {
     searchScore(2, 1, 10) shouldEqual 1.0 +- 0.0001
