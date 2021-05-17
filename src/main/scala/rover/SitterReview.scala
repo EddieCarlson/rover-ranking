@@ -9,11 +9,10 @@ import cats.implicits._
 case class SitterReview(name: String, rating: Int, email: String)
 
 object SitterReview {
-  def parseFile(filepath: String): Either[Throwable, List[SitterReview]] = {
+  def parseFile(filepath: String): Either[Throwable, List[SitterReview]] =
     Using(Source.fromFile(filepath)) { src =>
       parseLines(src.getLines).leftMap(combineErrors).toEither
     }.toEither.joinRight
-  }
 
   def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] = {
     val withoutHeader = lines.drop(1)
