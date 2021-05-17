@@ -7,15 +7,17 @@ import SitterScore.twoDecimal
 case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double)
   extends Ordered[SitterScore] {
 
+  val twoDecimalSearchScore: String = twoDecimal(searchScore) // stored since it is used for sorting
+
   // creates a comma-seperated list that is the expected format in the output csv
   def format: String =
-    s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},${twoDecimal(searchScore)}\n"
+    s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},$twoDecimalSearchScore\n"
 
   def compare(that: SitterScore): Int =
     if (searchScore == that.searchScore) {
       name.compare(that.name) // asc by name if scores are tied
     } else {
-      that.searchScore.compare(searchScore) // desc by scores
+      that.twoDecimalSearchScore.compare(twoDecimalSearchScore) // desc by scores (rounding BEFORE sort)
     }
 }
 

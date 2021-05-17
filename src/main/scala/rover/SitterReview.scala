@@ -83,9 +83,8 @@ object SitterReviewValidators {
     (validateSitter(sitter), validateRating(rating), validateEmail(email)).mapN(SitterReview.apply)
 
   def validateRating(intStr: String): ValidatedNel[String, Int] =
-    Try(intStr.toInt).filter(r => r >= 0 && r <= 5).toValidated
-      .leftMap(_ => s"rating '$intStr' was not an integer between 0 and 5")
-      .toValidatedNel
+    Try(intStr.toInt).filter(r => r >= 0 && r <= 5).toOption
+      .toValidNel(s"rating '$intStr' was not an integer between 0 and 5")
 
   def validateSitter(sitter: String): ValidatedNel[String, String] =
     Validated.cond(sitter.nonEmpty, sitter, s"sitter field was not present").toValidatedNel

@@ -2,7 +2,9 @@ package rover
 
 import cats.implicits._
 
-// reads a csv file specified via the first (and only) program argument
+// reads a csv file specified via the first (and only) program argument containing sitter review data in the expected
+// format (as shown in `reviews.csv`). Aggregates reviews by sitter and writes `sitters.csv` with rows representing
+// each sitter and their calculated scores, ranked first by search score (desc), then by name (asc)
 object Main extends App {
   val successOrError: Either[Throwable, Unit] =
     for {
@@ -20,7 +22,7 @@ object Main extends App {
 
 object ParseArgs {
   def parse(args: Array[String]): Either[Throwable, String] = args.toList match {
-    case filename :: Nil => filename.asRight
+    case filename :: Nil => filename.asRight // ensures there is exactly one program arg
     case _ =>
       val msg = s"program must be executed with exactly one arg: file path of the reviews csv. provided: ${args.toList}"
       new IllegalArgumentException(msg).asLeft
