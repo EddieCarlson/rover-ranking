@@ -6,7 +6,7 @@ import cats.implicits._
 // format (as shown in `reviews.csv`). Aggregates reviews by sitter and writes `sitters.csv` with rows representing
 // each sitter and their calculated scores, ranked first by search score (desc), then by name (asc)
 object Main extends App {
-  val successOrError: Either[Throwable, Unit] =
+  val successOrError: Either[Throwable, String] =
     for {
       inputFileName <- ParseArgs.parse(args)
       reviews <- SitterReviewParsers.parseFile(inputFileName)
