@@ -16,7 +16,7 @@ case class SitterReview(name: String, rating: Int, email: String)
 object SitterReviewParsers {
   // given the filepath to a csv file in the expected format, returns either a list of parsed SitterReviews,
   // or an exception with a message detailing all parsing and validation errors (possibly more than one per row),
-  // including row numbers and the offending lines
+  // including row numbers and the offending lines (limited to 50 error messages at most)
   def parseFile(filepath: String): Either[Throwable, List[SitterReview]] =
     Using(Source.fromFile(filepath)) { src =>
       parseLines(src.getLines).leftMap(combineErrors).toEither

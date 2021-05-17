@@ -10,12 +10,12 @@ case class SitterScore(name: String, email: String, profileScore: Double, rating
   val twoDecimalSearchScore: String = twoDecimal(searchScore) // stored since it is used for sorting
 
   // creates a comma-seperated list that is the expected format in the output csv
-  def format: String =
-    s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},$twoDecimalSearchScore\n"
+  def format: String = s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},$twoDecimalSearchScore\n"
 
+  // sorts first by search score (desc), then by name (asc)
   def compare(that: SitterScore): Int =
     if (searchScore == that.searchScore) {
-      name.compare(that.name) // asc by name if scores are tied
+      name.compare(that.name)
     } else {
       that.twoDecimalSearchScore.compare(twoDecimalSearchScore) // desc by scores (rounding BEFORE sort)
     }

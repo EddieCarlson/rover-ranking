@@ -30,22 +30,38 @@ Note: the first sbt run may have a long startup time if has to download scala.
 
 ## Discussion Question (API Design):
 
-GET /sitters - returns a json list where each element is a sitter, representing all sitters in the database. query params "offset" (default: 0) and "limit" (default 100) may be provided for pagination. limit cannot be larger than 1000. "sort" query param accepted, with allowed values ["profile_score", "ratings_score", "search_score"] (default: "search_score"), returning the list sorted descendingly. "ranking_gt" and "ranking_lt" query params accepted as lower and upper bounds for the score specified in "sort".
+In order to approach the problem, we need to first understand who the client is. My first thought is that the frontend would be calling the API to generate lists of sitters to display to an end-user browsing rover.com looking for a sitter for their pet. To satisfy this user, we will need to return a list of elements representing sitters, containing enough information to generate a list of sitter "thumbnails" with info about the sitters and links to the sitter profiles. The user can then scan the list of sitters and click on one to go to the sitter's profile page. If the response is served to the user's browser, it will need to contain public info only. The user will probably want to rank sitters by score (search_score, most likely), so returning score(s) with the sitters having been ranked by the scores is required.
 
-GET /sitters/<id> - returns a single sitter looked up by the identifier used by the database (<id> is an int or uuid). cannonical means of retrieval.
-
-GET /sitters/email/<email> - returns a single sitter (email is unique) looked up by email address. This is provided beacuse sitter email seems like information the client may have if they don't have the id, and it also uniquely identifies the sitter. could also be done with query param `/sitters?email=<email>`, but I like path elements.
-
-Just returning the same data emitted by the program, we would return the following as a json response body:
+(minimum) json response object representing a sitter to satisfy the above client:
 
 {
-  "email": "<email>",
-  "name": "<name>",
-  "profile_score": <profile_score>,
-  "ratings_score": <ratings_score>,
-  "search_score": <search_score>
+  "sitter_name": <string>,
+  "sitter_img": <string - url>,
+  "sitter_id": <string - unique id>,
+  "search_score": <number>,
 }
 
-Presumably, these values have been pre-calculated by the program and stored in a `sitters` table in a database, making the lookup (by an indexed field) very fast.
+The above fields can be generated from the info provided in `reviews.csv`
 
-However, phone number, response time, and response time are also present in the input csv, and could also be of value to the client. 
+"profile_score" and "rankings_score" could also easily be included.
+
+The user may also be interested to know "avg response time", "total sits", "sitter since", which could all be calculated in processing reviews.csv. Perhaps a sitter (brief) description from some other source can be included.
+
+We do not want to return email or phone number, since that info is likely private, and we want the user to contact the sitter through the site.
+
+A link to each sitter's profile could be generated from `sitter_id`.
+
+If we are serving sensitive data, we will need to perform authentication, but that is not the case described above.
+
+Endpoints:
+
+GET /sitters
+ * returns a json list where each element is a sitter (as shown above)
+ * sorting and pagination will be necessary, as the total number of sitters is long and users want to see high-ranked sitters
+ * pagination query params: "offset" (default: 0) and "limit" (default 100)
+ * perhaps the user wants to see only sitters above a certain search_score. query param "score_gt" (default: 0) can be provided
+ * more filtering and/or complex querying could be done ("has watched both a dog and a cat in the last week") - if intense
+   querying is desired, explore something like GraphQL to make it more managable, rather than pile on the query params.
+
+GET /sitters/<id>
+  * returns a single sitter looked up by the unique identifier for the sitter, containing enough information to generate the profile page
