@@ -30,7 +30,7 @@ object SitterReviewParsers {
     addErrorRowIndices(reviewValidations).sequence
   }
 
-  // given a list of strings where each element is a field in the comma-seperated row from the input csv of the
+  // given a list of strings where each element is a field in the comma-separated row from the input csv of the
   // expected format, validates those elements as a SitterReview or a list of error messages
   def parseReview(line: List[String]): ValidatedNel[String, SitterReview] = line match {
     case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) =>
@@ -46,12 +46,12 @@ object SitterReviewParsers {
     new IllegalArgumentException(s"errors during parsing:\n${errorMessages.mkString_("\n")}")
 
   def addErrorRowIndices[A](list: List[ValidatedNel[String, A]]): List[ValidatedNel[String, A]] =
-    list.zipWithIndex.map { case (v, idx) =>
-      v.leftMap(msgs => msgs.map(msg => s"(row ${idx + 1}) $msg")) // add row numbers to error messages
+    list.zipWithIndex.map { case (v, idx) => // for any validations that are failures, add row number to err msg
+      v.leftMap(msgs => msgs.map(msg => s"(row ${idx + 1}) $msg"))
     }
 
-  // if a validation for a single row in the csv has multiple validation errors, include the row only in the
-  // first error message, rather than duplicating it for all errors for the row
+  // add offending input row to a validation error message. if a validation for a single row in the csv has multiple
+  // validation errors, include the row only in the first error msg, rather than duplicating it in all msgs for the row
   def addErrorLineOnce[A](v: ValidatedNel[String, A], line: String): ValidatedNel[String, A] =
     v.leftMap { case NonEmptyList(head, tail) =>
       NonEmptyList(s"$head in line: $line", tail)

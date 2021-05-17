@@ -41,8 +41,8 @@ class ParsingTests extends AnyFlatSpec with Matchers {
           s"(row 2) line did not contain 14 elements: ${lines(2)}",
           s"(row 3) rating '3.1' was not an integer between 0 and 5 in line: ${lines(3)}",
           s"(row 4) sitter field was not present in line: ${lines(4)}",
-          s"(row 4) rating '25' was not an integer between 0 and 5", // entire line not repeated for duplicate rows - cleaner :)
-          s"(row 4) email 'not_an_email' did not contain '@'"
+          s"(row 4) rating '25' was not an integer between 0 and 5",
+          s"(row 4) email 'not_an_email' did not contain '@'" // entire line not repeated for duplicate rows - cleaner
         )
       case Right(reviews) =>
         fail(s"result should have been invalid. instead: $reviews")
