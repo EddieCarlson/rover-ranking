@@ -51,7 +51,7 @@ object SitterReviewParsers {
       s"line did not contain 14 elements: ${line.mkString(",")}".invalidNel
   }
 
-  // ---- error handling helpers ----
+  // ---- error message embellishment helpers ----
 
   // gathers all error messages from parsing/validating and generates a Throwable with a message containing all error
   // messages separated by newlines (truncated at 50 so as to not be obnoxious)
