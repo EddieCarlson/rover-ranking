@@ -15,7 +15,7 @@ object SitterReview {
     }.toEither.joinRight
 
   def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] = {
-    val withoutHeader = lines.drop(1)
+    val withoutHeader = lines.drop(1) // could add validation on expected header
     val commaLists = withoutHeader.map(_.split(",", -1).map(_.trim).toList)
     commaLists.map(parseReview).zipWithIndex.map { case (review, idx) =>
       review.leftMap(msgs => msgs.map(msg => s"(row ${idx + 1}) $msg")) // add row numbers to error messages
@@ -26,7 +26,7 @@ object SitterReview {
     case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) =>
       validateReview(rating, sitter, email).leftMap { case NonEmptyList(head, tail) =>
         NonEmptyList(s"$head in line: ${line.mkString(",")}", tail)
-      } // add line to first error message for this row only, rather than repeating it
+      } // add line to first error message for this row only, rather than repeating it for each error for the row
     case _ =>
       s"line did not contain 14 elements: ${line.mkString(",")}".invalidNel
   }
