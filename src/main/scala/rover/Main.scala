@@ -8,13 +8,15 @@ object Main extends App {
     reviews <- SitterReview.parse(filepath)
     scores = SitterScore.fromReviews(reviews)
     _ <- SitterWriter.write(scores.sorted)
-  } yield ()).recover {
-    case t: Throwable => println(t)
+  } yield {
+    println("success")
+  }).recover {
+    case t: Throwable => println(s"failure: ${t.getMessage}\n$t")
   }
 }
 
 object ParseArgs {
-  def parse(args: Array[String]) : Try[String] = args.toList match {
+  def parse(args: Array[String]): Try[String] = args.toList match {
     case filename :: Nil => Success(filename)
     case _ =>
       val msg = s"program must be executed with exactly one arg: file path of the reviews csv. provided: ${args.toList}"
