@@ -9,7 +9,7 @@ object Main extends App {
   val successOrError: Either[Throwable, String] =
     for {
       inputFileName <- ParseArgs.parse(args)
-      reviews <- SitterReviewParsers.parseFile(inputFileName)
+      reviews <- SitterReviewParsers.parseCsv(inputFileName)
       scores = SitterScore.fromReviews(reviews)
       outputFileName <- SitterWriter.write(scores.sorted)
     } yield outputFileName

@@ -2,8 +2,8 @@ package rover
 
 import cats.data.{NonEmptyList, ValidatedNel}
 
-// helpers to add useful, contextual information to error messages generated from parsing/validating SitterReviews
-object SitterReviewErrorMessaging {
+// helpers to add contextual information to error messages generated from parsing/validating SitterReviews
+object SitterReviewErrorHelpers {
   // gathers all error messages from parsing/validating and generates a Throwable with a message containing all error
   // messages separated by newlines (truncated at 50 so as to not be obnoxious)
   def combineErrors(errorMessages: NonEmptyList[String]): Throwable = {

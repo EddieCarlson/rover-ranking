@@ -6,18 +6,19 @@ import scala.util.{Try, Using}
 import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
 
-import SitterReviewErrorMessaging._
+import SitterReviewErrorHelpers._
 import SitterReviewValidators.validateReview
 
 // contains the relevant information to be gleaned from each row in the input dataset
 case class SitterReview(name: String, rating: Int, email: String)
 
-// parse SitterReviews from a csv in the expected format. only stores the necessary columns in memory
+// parse SitterReviews from a csv in the expected format. only stores the necessary columns in memory as SitterReviews.
+// Note: No exceptions are thrown here. If errors occur, they are returned as `Left` or `Invalid`
 object SitterReviewParsers {
   // given the filepath to a csv file in the expected format, returns either a list of parsed SitterReviews,
   // or an exception with a message detailing all parsing and validation errors (possibly more than one per row),
   // including row numbers and the offending lines (limited to 50 error messages at most)
-  def parseFile(filepath: String): Either[Throwable, List[SitterReview]] =
+  def parseCsv(filepath: String): Either[Throwable, List[SitterReview]] =
     Using(Source.fromFile(filepath)) { src =>
       parseLines(src.getLines).leftMap(combineErrors).toEither
     }.toEither.joinRight
@@ -42,7 +43,7 @@ object SitterReviewParsers {
     }
   }
 
-  // given a list of strings where each element is a field in the comma-separated row from the input csv of the
+  // given a list of strings where each element is a field in a comma-separated row from the input csv of the
   // expected format, validates those elements as a SitterReview or a list of error messages
   def parseReview(line: List[String]): ValidatedNel[String, SitterReview] = line match {
     case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) => // bind relevant fields, ignore the rest
@@ -53,7 +54,7 @@ object SitterReviewParsers {
   }
 }
 
-// simple validators that take parsed strings and turn them into SitterReview (components)
+// simple validators that take parsed strings and turn them into SitterReview (components) or error messages
 object SitterReviewValidators {
   def validateReview(rating: String, sitter: String, email: String): ValidatedNel[String, SitterReview] =
     (validateSitter(sitter), validateRating(rating), validateEmail(email)).mapN(SitterReview.apply)
