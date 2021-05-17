@@ -24,7 +24,7 @@ case class SitterScore(name: String, email: String, profileScore: Double, rating
 object SitterScore {
   val twoDecimalFormat = "%.2f"
 
-  // secondary constructor (`apply` is conventional name for this in the companion object)
+  // (secondary constructor - `apply` is the conventional name in the companion object)
   def apply(name: String, email: String, ratings: List[Int]): SitterScore = {
     val profScore = profileScore(name)
     val ratingsLength = ratings.length // guaranteed non-empty

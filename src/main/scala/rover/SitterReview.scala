@@ -37,7 +37,7 @@ object SitterReviewParsers {
     val splitHeader = lines.nextOption().map(_.split(","))
     splitHeader.toValidNel("specified file was empty").andThen {
       case l if l.length == 14 => lines.validNel
-      case l => s"expected 14 column names in the header, got ${l.length} in $l".invalidNel
+      case l => s"expected 14 column names in the header, got ${l.length} in ${l.mkString(",")}".invalidNel
     }
   }
 
