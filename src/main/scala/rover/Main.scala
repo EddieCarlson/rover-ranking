@@ -2,16 +2,19 @@ package rover
 
 import cats.implicits._
 
+// reads a csv file specified via the first (and only) program argument
 object Main extends App {
-  (for {
-    filepath <- ParseArgs.parse(args)
-    reviews <- SitterReviewParsers.parseFile(filepath)
-    scores = SitterScore.fromReviews(reviews)
-    _ <- SitterWriter.write(scores.sorted)
-  } yield {
-    println("success")
-  }).recover {
-    case t: Throwable => println(s"failure: $t")
+  val successOrError: Either[Throwable, Unit] =
+    for {
+      inputFileName <- ParseArgs.parse(args)
+      reviews <- SitterReviewParsers.parseFile(inputFileName)
+      scores = SitterScore.fromReviews(reviews)
+      outputFileName <- SitterWriter.write(scores.sorted)
+    } yield outputFileName
+
+  successOrError match {
+    case Right(outputFileName) => println(s"success: $outputFileName created")
+    case Left(t) => println(s"failure: ${t.getMessage}") // NOTE: NOT thrown/caught, returned respecting control flow
   }
 }
 

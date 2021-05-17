@@ -11,7 +11,7 @@ import SitterReviewValidators.validateReview
 // contains the relevant information to be gleaned from each row in the input dataset
 case class SitterReview(name: String, rating: Int, email: String)
 
-// Parse SitterReviews from a csv in the expected format
+// parse SitterReviews from a csv in the expected format. only stores the necessary columns in memory
 object SitterReviewParsers {
   // given the filepath to a csv file in the expected format, returns either a list of parsed SitterReviews,
   // or an exception with a message detailing all parsing and validation errors (possibly more than one per row),
@@ -24,16 +24,27 @@ object SitterReviewParsers {
   // given an iterator where each element is a string corresponding to a line in the input csv file of the expected
   // format, parses and validates those lines into SitterReviews or a list of string error messages
   def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] = {
-    val withoutHeader = lines.drop(1) // could add validation on expected header
-    val commaLists = withoutHeader.map(_.split(",", -1).map(_.trim).toList)
-    val reviewValidations = commaLists.map(parseReview).toList
-    addErrorRowIndices(reviewValidations).sequence
+    removeHeader(lines).andThen { rows =>
+      val rowFieldLists = rows.map(_.split(",", -1).map(_.trim).toList)
+      val reviewValidations = rowFieldLists.map(parseReview).toList
+      addErrorRowIndices(reviewValidations).sequence
+    }
+  }
+
+  // parses fields from the header and validates that it has 14 columns (though does not inspect column names). returns
+  // the iterator having been advanced one index if the header has 14 columns, else error message describing the failure
+  def removeHeader(lines: Iterator[String]): ValidatedNel[String, Iterator[String]] = {
+    val splitHeader = lines.nextOption().map(_.split(","))
+    splitHeader.toValidNel("specified file was empty").andThen {
+      case l if l.length == 14 => lines.validNel
+      case l => s"expected 14 column names in the header, got ${l.length} in $l".invalidNel
+    }
   }
 
   // given a list of strings where each element is a field in the comma-separated row from the input csv of the
   // expected format, validates those elements as a SitterReview or a list of error messages
   def parseReview(line: List[String]): ValidatedNel[String, SitterReview] = line match {
-    case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) =>
+    case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) => // bind relevant fields, ignore the rest
       val reviewValidation = validateReview(rating, sitter, email)
       addErrorLineOnce(reviewValidation, line.mkString(","))
     case _ =>
@@ -42,8 +53,16 @@ object SitterReviewParsers {
 
   // ---- error handling helpers ----
 
-  def combineErrors(errorMessages: NonEmptyList[String]): Throwable =
-    new IllegalArgumentException(s"errors during parsing:\n${errorMessages.mkString_("\n")}")
+  // gathers all error messages from parsing/validating and generates a Throwable with a message containing all error
+  // messages separated by newlines (truncated at 50 so as to not be obnoxious)
+  def combineErrors(errorMessages: NonEmptyList[String]): Throwable = {
+    val numErrors = errorMessages.length
+    val truncatedMsg =
+      if (numErrors > 50) s"\n...truncated at 50. contained $numErrors errors"
+      else ""
+    val allErrorsMsg = errorMessages.toList.take(50).mkString("\n")
+    new IllegalArgumentException(s"errors during parsing:\n$allErrorsMsg$truncatedMsg")
+  }
 
   def addErrorRowIndices[A](list: List[ValidatedNel[String, A]]): List[ValidatedNel[String, A]] =
     list.zipWithIndex.map { case (v, idx) => // for any validations that are failures, add row number to err msg
