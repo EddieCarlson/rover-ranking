@@ -5,7 +5,7 @@ import cats.implicits._
 object Main extends App {
   (for {
     filepath <- ParseArgs.parse(args)
-    reviews <- SitterReview.parseFile(filepath)
+    reviews <- SitterReviewParsers.parseFile(filepath)
     scores = SitterScore.fromReviews(reviews)
     _ <- SitterWriter.write(scores.sorted)
   } yield {

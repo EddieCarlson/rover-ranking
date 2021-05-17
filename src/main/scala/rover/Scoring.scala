@@ -1,5 +1,6 @@
 package rover
 
+// standalone scoring calculations for profile and search score (ratings score excluded because it's simple)
 object Scoring {
   val alphabetSize = 26
   val profileScoreCoefficient = 5.0
