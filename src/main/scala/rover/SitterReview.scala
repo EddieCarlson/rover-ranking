@@ -17,20 +17,31 @@ object SitterReview {
   def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] = {
     val withoutHeader = lines.drop(1)
     val commaLists = withoutHeader.map(_.split(",", -1).map(_.trim).toList)
-    commaLists.map(parseReview).toList.sequence
+    commaLists.map(parseReview).zipWithIndex.map { case (review, idx) =>
+      review.leftMap(msgs => msgs.map(msg => s"(row ${idx + 1}) $msg")) // add row numbers to error messages
+    }.toList.sequence
   }
 
   def parseReview(line: List[String]): ValidatedNel[String, SitterReview] = line match {
     case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) =>
-      parseRating(rating, line).map(SitterReview(sitter, _, email))
+      validateReview(rating, sitter, email).leftMap { case NonEmptyList(head, tail) =>
+        NonEmptyList(s"$head in line: ${line.mkString(",")}", tail)
+      } // add line to first error message for this row only, rather than repeating it
     case _ =>
       s"line did not contain 14 elements: ${line.mkString(",")}".invalidNel
   }
 
-  def parseRating(intStr: String, line: List[String]): ValidatedNel[String, Int] =
-    Validated.catchNonFatal(intStr.toInt)
-      .leftMap(_ => s"rating '$intStr' was not an integer in row: ${line.mkString(",")}")
-      .toValidatedNel
+  def validateReview(rating: String, sitter: String, email: String): ValidatedNel[String, SitterReview] =
+    (validateSitter(sitter), validateRating(rating), validateEmail(email)).mapN(SitterReview.apply)
+
+  def validateRating(intStr: String): ValidatedNel[String, Int] =
+    Validated.catchNonFatal(intStr.toInt).leftMap(_ => s"rating '$intStr' was not an integer").toValidatedNel
+
+  def validateSitter(sitter: String): ValidatedNel[String, String] =
+    Validated.cond(sitter.nonEmpty, sitter, s"sitter field was not present").toValidatedNel
+
+  def validateEmail(email: String): ValidatedNel[String, String] =
+    Validated.cond(email.contains('@'), email, s"email '$email' did not contain '@'").toValidatedNel
 
   def combineErrors(errorMessages: NonEmptyList[String]): Throwable =
     new IllegalArgumentException(s"errors during parsing:\n${errorMessages.mkString_("\n")}")
