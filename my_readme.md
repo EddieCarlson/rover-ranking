@@ -30,7 +30,7 @@ Note: the first sbt run may have a long startup time if has to download scala.
 
 ## Discussion Question (API Design):
 
-In order to approach the problem, we need to first understand who the client is. My first thought is that the frontend would be calling the API to generate lists of sitters to display to an end-user browsing rover.com looking for a sitter for their pet. To satisfy this user, we will need to return a list of elements representing sitters, containing enough information to generate a list of sitter "thumbnails" with info about the sitters and links to the sitter profiles. The user can then scan the list of sitters and click on one to go to the sitter's profile page. If the response is served to the user's browser, it will need to contain public info only. The user will probably want to rank sitters by score (search_score, most likely), so returning score(s) with the sitters having been ranked by the scores is required.
+In order to approach the problem, we need to first understand who the client is. My first thought is that the frontend would be calling the API to generate lists of sitters to display to an end-user browsing rover.com looking for a sitter for their pet. To satisfy this user, we will need to return a list of elements representing sitters, containing enough information to generate a list of sitter "thumbnails" with info about the sitters and links to the sitter profiles. The user can then scan the list of sitters and click on one to go to the sitter's profile page. If the response is served to the user's browser, it will need to contain public info only. The user will probably want to rank sitters by score (search_score, most likely), so returning score(s) with the sitters having been ranked by the scores is required. Also, the user will only want to see sitters willing to travel to their location.
 
 (minimum) json response object representing a sitter to satisfy the above client:
 
@@ -56,12 +56,12 @@ If we are serving sensitive data, we will need to perform authentication, but th
 Endpoints:
 
 GET /sitters
- * returns a json list where each element is a sitter (as shown above)
- * sorting and pagination will be necessary, as the total number of sitters is long and users want to see high-ranked sitters
+ * returns a json list where each element is a sitter willing to travel to the user's location (as shown above)
  * pagination query params: "offset" (default: 0) and "limit" (default 100)
  * perhaps the user wants to see only sitters above a certain search_score. query param "score_gt" (default: 0) can be provided
- * more filtering and/or complex querying could be done ("has watched both a dog and a cat in the last week") - if intense
-   querying is desired, explore something like GraphQL to make it more managable, rather than pile on the query params.
+ * the location of the user must be known.
+    * if the user is logged in, this could be looked up from their profile (from info in an auth/session/cookie header).
+    * if not, and we still want to respond, we could take "lat" and "long" query params
 
 GET /sitters/<id>
   * returns a single sitter looked up by the unique identifier for the sitter, containing enough information to generate the profile page
