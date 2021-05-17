@@ -1,7 +1,7 @@
 package rover
 
-import SitterScore.twoDecimal
 import Scoring.{profileScore, searchScore}
+import SitterScore.twoDecimal
 
 case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double)
   extends Ordered[SitterScore] {
