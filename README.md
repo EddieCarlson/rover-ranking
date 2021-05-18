@@ -1,114 +1,106 @@
-# Rover Coding Project
+# Rover Recovery
 
-Rover.com was destroyed in a terrible Amazon Web Services and GitHub accident!
-Thankfully, no dogs were harmed, but we will have to rebuild our site using
-data we retrieved from the Google search index. 
+Copyright 2021 Candidate
 
-Your task is to recreate a search ranking algorithm and compute search
-scores for our sitters.
+## Description:
 
-# Requirements 
+This program will read sitter reviews from a csv in a known format and produce a variety of ratings (profile score,
+ratings score, and search score) for each sitter (identified uniquely by their email address in the reviews). The
+program will produce a csv file named `sitters.csv` that will be written to the current directory. This file will
+contain the columns: [email, name, profile_score, ratings_score, search_score], and each row following the header will
+represent a sitter and their scores. The sitters will be ordered first by their search_score (desc), then by name (asc).
+email and name are text, the other fields are rational numbers between 0 and 5 (inclusive), rounded to 2 decimal
+points.
 
-To recreate our search rankings, you'll create *a simple command-line program* that can be run
-locally and that will input and output csv data.
+## Running:
 
-Additionally, there is a short **discussion question**
-to answer (see below) about how you would build this system in the real
-world. 
+### Prerequisites:
 
-Please include a README with instructions on how to setup and run your project
-locally. Note that we are primarily Mac users. 
+1. java 8 jdk
+2. sbt
 
-**Please use the language that you feel will best show your skills.** Keep in
-mind that if you are brought for an in-person interview, you may be asked to continue
-building upon this solution. Feel free to use whatever libraries or packages you wish. 
+* The scala documentation recommends installing sbt and a compatible jdk with:
+  `brew install coursier/formulas/coursier && cs setup` (see: https://docs.scala-lang.org/getting-started/index.html)
+* If you already have a java 8 jdk installed, you can just install sbt via: `brew install sbt`
+  * if this doesn't work, or sbt gives you some sass about your jdk, try the first option
 
-Finally, if you have any questions, don't hesitate to ask.
+When sbt opens the project, it will automatically download the appropriate version of scala specified by the project.
 
-## Recreating the Search Ranking Algorithm
-We were able to write a script and scrape the Google index for all of the
-reviews customers have left for their stays with sitters. 
+### Execution:
 
-We have saved that information in the attached CSV.
+`cd` to the root of this project and run `sbt 'run <filepath>'`, where `<filepath>` is the file path of the csv file 
+containing the reviews. Alternatively, if you wish to run the program multiple times with different files/filepaths,
+you can first run `sbt`, and inside the sbt session, run `run <filepath>`, so as to not incur the sbt startup cost for
+every run.
 
-Your command-line program should import the data to hold in memory, and use it to recreate our search algorithm. You don't need to store the data in a database - save that for the discussion question! 
+Note: the first sbt run may have a long startup time if has to download scala.
 
-Here's how the search ranking algorithm will work:
+## Assumptions:
 
-- For each sitter, we first calculate a Profile Score and a Ratings Score.
-  These are then used to calculate the overall Search Score, which is used for search rankings.
+* The filepath given as a program arg must point to a csv in the exact same format as the original `reviews.csv`
+  (detailed error messgaes are returned, if not)
+* Sitters are sorted by rounded search scores (i.e. calculated search scores of 2.003 and 2.004 would be considered
+  identical), then by name
+* For the sake of making an interesting validation system:
+  * sitter_email requires an '@'
+  * sitter_name must be non-empty
+  * rating must be an int between 0 and 5 (inclusive)
+    
+## Parsing and Validation Error Reporting:
+* I now realize it was unnecessary, but I spent a good amount time making a robust yet unobtrusive parsing/validating
+  error handling and reporting system. I would be pleased if the reviewer could see it in action by running 
+  `sbt 'run invalid_reviews.csv'` :)
 
-- The Profile Score is 5 times the fraction of the English alphabet comprised by the
-  distinct letters in what we've recovered of the sitter's name. For example, the sitter name `Leilani R.` has 6 distinct letters.
+## Discussion Question (API Design):
 
-- The Ratings Score is the average of their stay ratings.
+### Approach:
 
-- The Search Score is a weighted average of the Profile Score and Ratings
-  Score. When a sitter has no stays, their Search Score is equal to the Profile Score. When a sitter has 10 or more
-  stays, their Search Score is equal to the Ratings Score. The idea is that as a sitter gets more reviews, we will weigh the
-  Ratings Score more heavily.
+Firstly, we need to understand who the client is. I imagine the frontend would call the
+API to generate a list of sitters to display to an end-user browsing rover.com. So, we will return a list of elements
+representing sitters, containing enough information to generate a list of sitter "thumbnails" with info about the
+sitters and links to the sitter profiles. The user can then scan the list of sitters and click on one to go to the
+sitter's profile page. If the response goes directly to the end user, it will need to contain public info only. The user
+may want sitters ranked by score (likely `search_score`), so returning score(s) with the sitters in a pre-sorted list
+is required. The user will only want to see sitters willing to travel to their location.
 
-- Scores should be limited to two decimal places.
+(minimum) json response object representing a sitter to satisfy the above client:
 
-## Output a list of Sitters
+```
+{
+  "sitter_name": <string>,
+  "sitter_img": <string - url>,
+  "sitter_id": <string - unique id>,
+  "search_score": <number>,
+}
+```
 
-Your program should output a csv called `sitters.csv`, containing the following
-columns:
+The above fields can be generated from the info provided in `reviews.csv`
 
-* Sitter email (`email`)
-* Sitter name (`name`)
-* Profile Score (`profile_score`)
-* Ratings Score (`ratings_score`)
-* Search Score (`search_score`)
+A link to each sitter's profile could be generated from `sitter_id`.
 
-The csv should be sorted by Search Score (descending), sorting alphabetically on the
-sitter name as a tie-breaker.
+### Possible Additions:
 
-## Hint for Testing the Search Ranking Algorithm
+`profile_score` and `rankings_score` could also easily be included.
 
-Suppose there is a sitter whose Profile Score is 2.5 and who gets a rating of
-5.0 with every stay. Then their Search Score should behave like this:
+The user may also be interested to know "avg response time", "total sits", "sitter since", which could all be calculated
+in processing reviews.csv. Perhaps a sitter (brief) description from some other source could be included.
 
-| Stay          | Search Score |
-| ------------- | ------------- |
-| 0 | 2.50
-| 1 | 2.75
-| 2 | 3.00
-| 3 | 3.25
-| 4 | 3.50
-| 5 | 3.75
-| 6 | 4.00
-| 7 | 4.25
-| 8 | 4.50
-| 9 |  4.75
-| 10 | 5.00
-| 11 | 5.00
-| 12 | 5.00
+We do not want to return `email` or `sitter_phone`, since that info is likely private, and we want the user to contact
+the sitter through the site.
 
-## Discussion Question
+### Endpoints:
 
-Imagine you are designing a production web application to compute the search scores for sitters and to return a list of sitters for search results. How would you do it? Please answer **ONE** of the following discussion questions about the approach you'd take:
+`GET /sitters`
+ * returns a json list where each element is a sitter (as shown above) willing to travel to the user's location
+ * pagination query params: `offset` (default: 0) and `limit` (default 100)
+ * perhaps the user wants to see only sitters above a certain search_score. query param `score_gt` (default: 0) can be
+   provided
+ * the location of the user must be known so the service can filter sitters near enough to be willing to sit for them.
+    * if the user is logged in, this could be looked up from their profile (from info in an auth/session/cookie header).
+    * if not, and we still want to respond, we could take `lat` and `long` query params
 
-- Data Scientists want to perform offline computations that are then used to compute the search scores served in the production application. How would you design a pipeline to do this?
-- What infrastructure choices might you make to build and host this project at scale? Suppose your web application must return fast search results with a peak of 10 searches per second.
-- We calculate search scores infrequently but we then access them frequently throughout the day. How should we structure the data to optimize resource utilization? What would be a good data storage solution and why?
-- Describe how you would approach API design for a backend service to provide sitter and rank data to a client.
-
-Write your answer in the README inside your project github repo. Your answer should not exceed 400 words.
-
-## When you're done with the project...
-
-When you're done with the project, compress your project directory into a Zip file or similar, making sure to include the output file, `sitters.csv`. Then, reply to the email you received from us with your attachment.
-
-# Evaluation 
-
-### Checklist:
-- [ ] Are Profile, Rating, and Search Scores computed correctly?
-- [ ] Does the output file include all necessary columns, and is it in descending order based on Search Score? 
-- [ ] Does the README include setup/running instructions (ideally for Mac)?
-- [ ] Does the README include your answer to the Discussion Question?
-- [ ] Have you included your CLI code, README, and output file in the Zip folder? 
-
-The work you create here should be representative of code that we'd expect to
-receive from you if you were hired tomorrow (proper abstractions, tests
-for the scoring algorithm calculation, best practices, etc). 
+`GET /sitters/<id>`
+  * returns a single sitter looked up by the unique identifier for the sitter, containing enough information to generate
+    the profile page
+ 
+Internal and authed clients will want an endpoint that provides the private information as well.

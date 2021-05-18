@@ -20,7 +20,7 @@ object SitterReviewParsers {
   // including row numbers and the offending lines (limited to 50 error messages at most)
   def parseCsv(filepath: String): Either[Throwable, List[SitterReview]] =
     Using(Source.fromFile(filepath)) { src =>
-      parseLines(src.getLines).leftMap(combineErrors).toEither
+      parseLines(src.getLines()).leftMap(combineErrors).toEither
     }.toEither.joinRight
 
   // given an iterator where each element is a string corresponding to a line in the input csv file of the expected
