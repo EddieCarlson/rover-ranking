@@ -63,8 +63,8 @@ class ParsingTests extends AnyFlatSpec with Matchers {
       "oh hey again,i'm not a valid row"
     )
 
-    parseLines(lines).toEither match { // there is exactly one error message, and it mentions "header"
-      case Left(NonEmptyList(errorMessage, Nil)) => errorMessage should include("header")
+    parseLines(lines).toEither match { // there is exactly one error message containing the expected header
+      case Left(NonEmptyList(errorMessage, Nil)) => errorMessage should include(SitterReviewValidators.expectedHeader)
       case resp => fail(s"result should have been invalid with one error message. instead: $resp")
     }
   }

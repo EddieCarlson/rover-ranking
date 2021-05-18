@@ -4,9 +4,8 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import Scoring._
 
-// when comparing doubles, a tolerance must be used (here: 0.0001)
 class ScoringTests extends AnyFlatSpec with Matchers {
-  val tolerance = 0.0001
+  val tolerance: Double = 0.0001 // when comparing doubles, a tolerance must be used
   val jimProfScore: Double = 5.0 * 3 / 26
 
   "profile score" should "calculate simple case" in {
@@ -30,13 +29,15 @@ class ScoringTests extends AnyFlatSpec with Matchers {
   }
 
   it should "calculate provided test" in {
-    profileScore("Lelani R.") shouldEqual 5.0 * 6 / 26 +- tolerance
+    profileScore("Lelani R.") shouldEqual (5.0 * 6 / 26) +- tolerance
   }
 
   it should "do it all" in {
-    profileScore("A $really-__--   ü  bad nAMMMmmme") shouldEqual 5.0 * 9 / 26 +- tolerance
+    profileScore("A $really-__--   ü  bad nAMMMmmme") shouldEqual (5.0 * 9 / 26) +- tolerance
   }
 
+  // ratings are guaranteed to be 0-5 by the validators, and numRatings is guaranteed to be > 1, so testing
+  // outside these values is unnecessary
   "search score" should "calculate with 10 ratings" in {
     searchScore(2, 1, 10) shouldEqual 1.0 +- tolerance
   }

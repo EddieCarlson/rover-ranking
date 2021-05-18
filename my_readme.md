@@ -23,10 +23,12 @@ Note: the first sbt run may have a long startup time if has to download scala.
 
 ## Assumptions:
 
-* The provided csv is in the same format as the `reviews.csv` file that came with the problem description. Meaning that the filename provided to the program must point to a csv having the same 14 columns in the same order as the original `reviews.csv`. This could be worked around by reading the header line and looking for the indices of desired columns (sitter, sitter_email, rating), but that is nearly as brittle and also opens the door for the program to run on csvs that happen to contain those column names but were produced for some other purpose and not meant to be processed by this program.
-* Ratings are always integers (from the rating column in the input csv).
-* A missing value (no character between commas) is meant to be parsed as an empty string.
-* Validation on emails (containing an "@", e.g.) and names (not containing numbers, e.g.) is not required.
+* The filepath given as a program arg must point to a csv is the exact same format as `reviews.csv`
+  (detailed parsing error messgaes are returned, if not)
+* For the sake of making an interesting validation system:
+  * sitter_email requires an '@'
+  * sitter_name must be non-empty
+  * rating must be an int between 0 and 5 (inclusive)
 
 ## Discussion Question (API Design):
 
@@ -35,10 +37,10 @@ In order to approach the problem, we need to first understand who the client is.
 (minimum) json response object representing a sitter to satisfy the above client:
 
 {
-  "sitter_name": <string>,
-  "sitter_img": <string - url>,
-  "sitter_id": <string - unique id>,
-  "search_score": <number>,
+  "sitter_name": "string",
+  "sitter_img": "string - url",
+  "sitter_id": "string - unique id",
+  "search_score": "number",
 }
 
 The above fields can be generated from the info provided in `reviews.csv`
@@ -63,5 +65,5 @@ GET /sitters
     * if the user is logged in, this could be looked up from their profile (from info in an auth/session/cookie header).
     * if not, and we still want to respond, we could take "lat" and "long" query params
 
-GET /sitters/<id>
+GET /sitters/id
   * returns a single sitter looked up by the unique identifier for the sitter, containing enough information to generate the profile page

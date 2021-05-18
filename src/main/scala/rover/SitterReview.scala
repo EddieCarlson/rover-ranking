@@ -7,7 +7,7 @@ import cats.data.{Validated, ValidatedNel}
 import cats.implicits._
 
 import SitterReviewErrorHelpers._
-import SitterReviewValidators.validateReview
+import SitterReviewValidators.{validateReview, validateHeader}
 
 // contains the relevant information to be gleaned from each row in the input dataset
 case class SitterReview(name: String, rating: Int, email: String)
@@ -26,21 +26,11 @@ object SitterReviewParsers {
   // given an iterator where each element is a string corresponding to a line in the input csv file of the expected
   // format, parses and validates those lines into SitterReviews or a list of string error messages
   def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] =
-    removeHeader(lines).andThen { rows =>
+    validateHeader(lines).andThen { rows =>
       val rowFieldLists = rows.map(_.split(",", -1).map(_.trim).toList)
       val reviewValidations = rowFieldLists.map(parseReview).toList
       addErrorRowIndices(reviewValidations).sequence
     }
-
-  // parses fields from the header and validates that it has 14 columns (though does not inspect column names). returns
-  // the iterator having been advanced one index if the header has 14 columns, else error message describing the failure
-  def removeHeader(lines: Iterator[String]): ValidatedNel[String, Iterator[String]] = {
-    val splitHeader = lines.nextOption().map(_.split(","))
-    splitHeader.toValidNel("specified file was empty").andThen {
-      case l if l.length == 14 => lines.validNel
-      case l => s"expected 14 column names in the header, got ${l.length} in ${l.mkString(",")}".invalidNel
-    }
-  }
 
   // given a list of strings where each element is a field in a comma-separated row from the input csv of the
   // expected format, validates those elements as a SitterReview or a list of error messages
@@ -55,6 +45,9 @@ object SitterReviewParsers {
 
 // simple validators that take extracted strings and turn them into SitterReview (components) or error messages
 object SitterReviewValidators {
+  val expectedHeader: String = "rating,sitter_image,end_date,text,owner_image,dogs,sitter,owner,start_date," +
+    "sitter_phone_number,sitter_email,owner_phone_number,owner_email,response_time_minutes"
+
   def validateReview(rating: String, sitter: String, email: String): ValidatedNel[String, SitterReview] =
     (validateSitter(sitter), validateRating(rating), validateEmail(email)).mapN(SitterReview.apply)
 
@@ -67,4 +60,12 @@ object SitterReviewValidators {
 
   def validateEmail(email: String): ValidatedNel[String, String] =
     Validated.cond(email.contains('@'), email, s"email '$email' did not contain '@'").toValidatedNel
+
+  // validates that the first element in the iterator matches the expected header. returns the iterator having been
+  // advanced one index if the header matches, else an error message describing the failure
+  def validateHeader(lines: Iterator[String]): ValidatedNel[String, Iterator[String]] =
+    lines.nextOption().toValidNel("specified file was empty").andThen {
+      case `expectedHeader` => lines.validNel
+      case l => s"expected header: $expectedHeader\n got ${l.length} in ${l.mkString(",")}".invalidNel
+    }
 }
