@@ -3,6 +3,7 @@ package rover
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
+import rover.scoring.Scores
 import rover.scoring.Scoring._
 
 class ScoringTests extends AnyFlatSpec with Matchers {
@@ -65,5 +66,12 @@ class ScoringTests extends AnyFlatSpec with Matchers {
 
   it should "work with 7 ratings and non-ints" in {
     searchScore(2.1, 1.1, 7) shouldEqual ((2.1 * 0.3) + (1.1 * 0.7)) +- tolerance
+  }
+
+  "scores" should "create all scores" in {
+    val Scores(profile, rating, search) = scores("jimmm", List(2, 2, 3))
+    profile shouldEqual jimProfScore +- tolerance
+    rating shouldEqual 2.3333333 +- tolerance
+    search shouldEqual ((0.7 * jimProfScore) + (0.3 * 2.333333)) +- tolerance
   }
 }

@@ -25,9 +25,7 @@ object ReviewValidation {
 
   // validates that the first element in the iterator matches the expected header. returns the iterator having been
   // advanced one index if the header matches, else an error message describing the failure
-  def validateHeader(lines: Iterator[String]): ValidatedNel[String, Iterator[String]] =
-    lines.nextOption().toValidNel("specified file was empty").andThen {
-      case `expectedHeader` => lines.validNel
-      case l => s"expected header: $expectedHeader\ngot: $l".invalidNel
-    }
+  def validateHeader(header: String): ValidatedNel[String, Unit] =
+    if (header == expectedHeader) ().validNel
+    else s"expected header: $expectedHeader\ngot: $header".invalidNel
 }

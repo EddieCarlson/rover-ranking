@@ -9,7 +9,7 @@ case class SitterScore(name: String, email: String, profileScore: Double, rating
 
   val twoDecimalSearchScore: String = twoDecimal(searchScore) // stored since it is used for sorting
 
-  // creates a comma-seperated list that is the expected format in the output csv
+  // creates a comma-separated list that is the expected format in the output csv
   def format: String = s"$email,$name,${twoDecimal(profileScore)},${twoDecimal(ratingsScore)},$twoDecimalSearchScore\n"
 
   // sorts first by rounded search score (desc), then by name (asc)
@@ -27,10 +27,8 @@ object SitterScore {
   val twoDecimalFormat = "%.2f"
 
   def apply(name: String, email: String, ratings: List[Int]): SitterScore = { // (`apply` is the conventional name here)
-    val profileScore = Scoring.profileScore(name)
-    val ratingsScore = Scoring.ratingsScore(ratings)
-    val searchScore = Scoring.searchScore(profileScore, ratingsScore, ratings.length)
-    SitterScore(name, email, profileScore, ratingsScore, searchScore)
+    val Scores(profile, rating, search) = Scoring.scores(name, ratings)
+    SitterScore(name, email, profile, rating, search)
   }
 
   // aggregates a list of `Review`s into a list of SitterScores (one element per distinct sitter in input list)

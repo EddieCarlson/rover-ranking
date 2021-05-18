@@ -25,15 +25,21 @@ object ReviewParsing {
 
   // given an iterator where each element is a string corresponding to a line in the input csv file of the expected
   // format (including header), parses and validates those lines into `Review`s or a list of string error messages
-  def parseLines(lines: Iterator[String]): ValidatedNel[String, List[Review]] =
-    validateHeader(lines).andThen { rows =>
-      val rowFieldLists = rows.map(_.split(",", -1).map(_.trim).toList)
-      val reviewValidations = rowFieldLists.map(parseReview).toList
-      addErrorRowIndices(reviewValidations).sequence
-    }
+  def parseLines(lines: Iterator[String]): ValidatedNel[String, List[Review]] = {
+    val headerExists = lines.nextOption().toValidNel("specified file was empty")
+    val headerMatches = headerExists.andThen(validateHeader)
+    headerMatches.andThen(_ => parseRows(lines))
+  }
+
+  // like `parseLines`, but assumes the first line (header) matches expectations and has been removed from the iterator
+  def parseRows(rows: Iterator[String]): ValidatedNel[String, List[Review]] = {
+    val rowFieldLists = rows.map(_.split(",", -1).map(_.trim).toList)
+    val reviewValidations = rowFieldLists.map(parseReview).toList
+    addErrorRowIndices(reviewValidations).sequence
+  }
 
   // given a list of strings where each element is a field in a comma-separated row from the input csv of the
-  // expected format, validates those elements into a `Review` or a list of string error messages
+  // expected format, extracts and validates those elements into a `Review` or a list of string error messages
   def parseReview(line: List[String]): ValidatedNel[String, Review] = line match {
     case List(rating, _, _, _, _, _, sitter, _, _, _, email, _, _, _) => // bind relevant fields, ignore the rest
       val reviewValidation = validateReview(rating, sitter, email)

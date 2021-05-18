@@ -1,9 +1,20 @@
 package rover.scoring
 
+// all the types of sitter scores
+case class Scores(profileScore: Double, ratingsScore: Double, searchScore: Double)
+
 // standalone scoring calculations for the different types of sitter scores
 object Scoring {
   val alphabetSize = 26
   val profileScoreCoefficient = 5.0
+
+  // calculate all scores based on name and ratings
+  def scores(name: String, ratings: List[Int]): Scores = {
+    val profile = profileScore(name)
+    val rating = ratingsScore(ratings)
+    val search = searchScore(profile, rating, ratings.length)
+    Scores(profile, rating, search)
+  }
 
   // the average rating
   def ratingsScore(ratings: List[Int]): Double = ratings.sum.toDouble / ratings.length

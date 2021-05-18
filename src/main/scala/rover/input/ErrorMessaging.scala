@@ -2,7 +2,7 @@ package rover.input
 
 import cats.data.{NonEmptyList, ValidatedNel}
 
-// returned when there is an error in parsing/validating the csv file
+// returned when there is an error in parsing the csv file or validating its contents
 case class ParsingException(msg: String) extends Throwable(msg)
 
 // helpers to add contextual information to error messages generated from parsing/validating `Review`s
