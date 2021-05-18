@@ -6,7 +6,7 @@ import cats.implicits._
 // format (as shown in `reviews.csv`). Aggregates reviews by sitter and writes `sitters.csv` with rows representing
 // each sitter and their calculated scores, ranked first by search score (desc), then by name (asc)
 object Main extends App {
-  val successOrError: Either[Throwable, String] =
+  val outputFileOrError: Either[Throwable, String] =
     for {
       inputFileName <- ParseArgs.parse(args)
       reviews <- SitterReviewParsers.parseCsv(inputFileName)
@@ -14,7 +14,7 @@ object Main extends App {
       outputFileName <- SitterWriter.write(scores.sorted)
     } yield outputFileName
 
-  successOrError match {
+  outputFileOrError match {
     case Right(outputFileName) => println(s"success: $outputFileName created")
     case Left(t) => println(s"failure: ${t.getMessage}") // NOTE: NOT thrown/caught, returned respecting control flow
   }

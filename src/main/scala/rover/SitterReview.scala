@@ -54,7 +54,7 @@ object SitterReviewParsers {
   }
 }
 
-// simple validators that take parsed strings and turn them into SitterReview (components) or error messages
+// simple validators that take extracted strings and turn them into SitterReview (components) or error messages
 object SitterReviewValidators {
   def validateReview(rating: String, sitter: String, email: String): ValidatedNel[String, SitterReview] =
     (validateSitter(sitter), validateRating(rating), validateEmail(email)).mapN(SitterReview.apply)

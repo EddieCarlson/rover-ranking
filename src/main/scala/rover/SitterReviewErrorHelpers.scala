@@ -23,7 +23,7 @@ object SitterReviewErrorHelpers {
 
   // add offending input row to the validation error message generated when attempting to validate that row. if a
   // validation for a single row in the csv has multiple validation errors, include the input row only in the first
-  // error msg, rather than duplicating it in all msgs for the row
+  // error msg, rather than duplicating it in all msgs for the row. if not invalid, do nothing
   def addErrorLineOnce[A](v: ValidatedNel[String, A], line: String): ValidatedNel[String, A] =
     v.leftMap { case NonEmptyList(head, tail) =>
       NonEmptyList(s"$head in line: $line", tail)
