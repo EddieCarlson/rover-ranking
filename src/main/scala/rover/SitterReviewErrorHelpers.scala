@@ -2,17 +2,20 @@ package rover
 
 import cats.data.{NonEmptyList, ValidatedNel}
 
+// returned when there is an error in parsing/validating the csv file
+case class ParsingException(msg: String) extends Throwable(msg)
+
 // helpers to add contextual information to error messages generated from parsing/validating SitterReviews
 object SitterReviewErrorHelpers {
-  // gathers all error messages from parsing/validating and generates a Throwable with a message containing all error
-  // messages separated by newlines (truncated at 50 so as to not be obnoxious)
+  // gathers all error messages from parsing/validating and generates a ParsingException with a message containing all
+  // error messages separated by newlines (truncated at 50 so as to not be obnoxious)
   def combineErrors(errorMessages: NonEmptyList[String]): Throwable = {
     val numErrors = errorMessages.length
     val truncatedMsg =
       if (numErrors > 50) s"\n...truncated at 50. contained $numErrors errors"
       else ""
     val allErrorsMsg = errorMessages.toList.take(50).mkString("\n")
-    new IllegalArgumentException(s"errors during parsing:\n$allErrorsMsg$truncatedMsg")
+    ParsingException(s"errors during parsing:\n$allErrorsMsg$truncatedMsg")
   }
 
   // for any validations that are Invalid, add row number to error msg
