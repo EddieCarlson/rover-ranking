@@ -66,6 +66,6 @@ object SitterReviewValidators {
   def validateHeader(lines: Iterator[String]): ValidatedNel[String, Iterator[String]] =
     lines.nextOption().toValidNel("specified file was empty").andThen {
       case `expectedHeader` => lines.validNel
-      case l => s"expected header: $expectedHeader\n got ${l.length} in ${l.mkString(",")}".invalidNel
+      case l => s"expected header: $expectedHeader\ngot: $l".invalidNel
     }
 }
