@@ -23,8 +23,7 @@ object ReviewValidation {
   def validateEmail(email: String): ValidatedNel[String, String] =
     Validated.cond(email.contains('@'), email, s"email '$email' did not contain '@'").toValidatedNel
 
-  // validates that the first element in the iterator matches the expected header. returns the iterator having been
-  // advanced one index if the header matches, else an error message describing the failure
+  // validates that the provided string matches the expected header. returns valid unit if so, else invalid error msg
   def validateHeader(header: String): ValidatedNel[String, Unit] =
     if (header == expectedHeader) ().validNel
     else s"expected header: $expectedHeader\ngot: $header".invalidNel
