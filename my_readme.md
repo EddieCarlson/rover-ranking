@@ -14,7 +14,7 @@ points.
 
 ### Prerequisites:
 
-1. java 8
+1. java 8 jdk
 2. sbt
 
 * If you already have java 8 installed, you only need to install sbt, which can be acquired via homebrew:
@@ -27,16 +27,19 @@ points.
 
 ### Execution:
 
-`cd` to the root of this project and run `sbt 'run <filepath>'`, where `<filepath>` is the file path of the reviews csv
-file. Alternatively, if you wish to run the program multiple times with different files/filepaths, you can first run
-`sbt`, and inside the sbt session, run `run <filepath>`, so as to not incur the sbt startup cost for every run.
+`cd` to the root of this project and run `sbt 'run <filepath>'`, where `<filepath>` is the file path of the csv file 
+containing the reviews. Alternatively, if you wish to run the program multiple times with different files/filepaths,
+you can first run `sbt`, and inside the sbt session, run `run <filepath>`, so as to not incur the sbt startup cost for
+every run.
 
 Note: the first sbt run may have a long startup time if has to download scala.
 
 ## Assumptions:
 
 * The filepath given as a program arg must point to a csv in the exact same format as the original `reviews.csv`
-  (detailed parsing error messgaes are returned, if not)
+  (detailed error messgaes are returned, if not)
+* Sitters are sorted by rounded search scores (i.e. calculated search scores of 2.003 and 2.004 would be considered
+  identical), then by name
 * For the sake of making an interesting validation system:
   * sitter_email requires an '@'
   * sitter_name must be non-empty
@@ -45,7 +48,7 @@ Note: the first sbt run may have a long startup time if has to download scala.
 ## Parsing and Validation Error Reporting:
 * I now realize it was unnecessary, but I spent a good amount time making a robust yet unobtrusive parsing/validating
   error handling and reporting system. I would be pleased if the reviewer could see it in action by running 
-  `sbt 'run invalid_reviews.csv'`
+  `sbt 'run invalid_reviews.csv'` :)
 
 ## Discussion Question (API Design):
 
