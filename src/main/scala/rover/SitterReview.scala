@@ -25,13 +25,12 @@ object SitterReviewParsers {
 
   // given an iterator where each element is a string corresponding to a line in the input csv file of the expected
   // format, parses and validates those lines into SitterReviews or a list of string error messages
-  def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] = {
+  def parseLines(lines: Iterator[String]): ValidatedNel[String, List[SitterReview]] =
     removeHeader(lines).andThen { rows =>
       val rowFieldLists = rows.map(_.split(",", -1).map(_.trim).toList)
       val reviewValidations = rowFieldLists.map(parseReview).toList
       addErrorRowIndices(reviewValidations).sequence
     }
-  }
 
   // parses fields from the header and validates that it has 14 columns (though does not inspect column names). returns
   // the iterator having been advanced one index if the header has 14 columns, else error message describing the failure

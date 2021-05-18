@@ -60,9 +60,20 @@ class SitterScoreTests extends AnyFlatSpec with Matchers {
       SitterScore("c", "cc", 1.1, 2, 3.2),
       SitterScore("b", "bb", 3, 2.2, 3.2),
       SitterScore("d", "dd", 4.3, 1.1, 3.0),
-      SitterScore("e", "dd", 1.4, 5, 3.1),
+      SitterScore("e", "ee", 1.4, 5, 3.1),
     )
 
     scores.sorted.map(_.name) shouldEqual List("b", "c", "a", "e", "d")
+  }
+
+  it should "round before sort" in {
+    val scores = List(
+      SitterScore("a", "aa", 1.0, 2.1, 3.111),
+      SitterScore("c", "cc", 1.1, 2, 3.112),
+      SitterScore("d", "dd", 3, 2.2, 3.124),
+      SitterScore("b", "bb", 3, 2.2, 3.123)
+    )
+
+    scores.sorted.map(_.name) shouldEqual List("b", "d", "a", "c")
   }
 }

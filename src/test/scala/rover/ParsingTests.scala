@@ -33,7 +33,7 @@ class ParsingTests extends AnyFlatSpec with Matchers {
       "5,https://images.dog.ceo/breeds/dalmatian/cooper2.jpg,2013-04-08,latin!,https://images.dog.ceo/breeds/hound-ibizan/n02091244_327.jpg,Pinot Grigio,Lauren B.,Shelli K.,2013-02-26,+12546478758,user4739@gmail.com,+15817557107,user2555@verizon.net,2",
       "oh hey there",
       "3.1,img,date,text,img,dogs,Leilani R.,Nancy L.,date,phone,user7508@t-mobile.com,phone,user3444@t-mobile.com,186",
-      "25,img,date,text,img,dogs,,Nancy L.,date,phone,not_an_email,phone,user3444@t-mobile.com,186",
+      "25,img,date,text,img,dogs,,Nancy L.,date,phone,not_an_email,phone,user3444@t-mobile.com,186"
     )
 
     parseLines(lines.iterator).toEither match {
