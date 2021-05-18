@@ -2,21 +2,25 @@ package rover
 
 import cats.implicits._
 
-// reads a csv file specified via the first (and only) program argument containing sitter review data in the expected
+import rover.input.ReviewParsing
+import rover.output.SitterWriter
+import rover.scoring.SitterScore
+
+// reads a csv file (specified by the first and only program argument) containing sitter review data in the expected
 // format (as shown in `reviews.csv`). Aggregates reviews by sitter and writes `sitters.csv` with rows representing
 // each sitter and their calculated scores, ranked first by search score (desc), then by name (asc)
 object Main extends App {
   val outputFileOrError: Either[Throwable, String] =
     for {
       inputFileName <- ParseArgs.parse(args)
-      reviews <- SitterReviewParsers.parseCsv(inputFileName)
+      reviews <- ReviewParsing.parseCsv(inputFileName)
       scores = SitterScore.fromReviews(reviews)
       outputFileName <- SitterWriter.write(scores.sorted)
     } yield outputFileName
 
   outputFileOrError match {
     case Right(outputFileName) => println(s"success: $outputFileName created")
-    case Left(t) => println(s"failure: ${t.getMessage}") // NOTE: NOT thrown/caught, returned respecting control flow
+    case Left(t) => println(s"failure: ${t.getMessage}") // not thrown/caught, returned respecting control flow
   }
 }
 

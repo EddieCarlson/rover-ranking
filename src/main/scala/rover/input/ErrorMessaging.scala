@@ -1,12 +1,12 @@
-package rover
+package rover.input
 
 import cats.data.{NonEmptyList, ValidatedNel}
 
 // returned when there is an error in parsing/validating the csv file
 case class ParsingException(msg: String) extends Throwable(msg)
 
-// helpers to add contextual information to error messages generated from parsing/validating SitterReviews
-object SitterReviewErrorHelpers {
+// helpers to add contextual information to error messages generated from parsing/validating `Review`s
+object ErrorMessaging {
   // gathers all error messages from parsing/validating and generates a ParsingException with a message containing all
   // error messages separated by newlines (truncated at 50 so as to not be obnoxious)
   def combineErrors(errorMessages: NonEmptyList[String]): Throwable = {

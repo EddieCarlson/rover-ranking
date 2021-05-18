@@ -1,15 +1,17 @@
 package rover
 
+import cats.data.NonEmptyList
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import SitterReviewParsers.{parseLines, parseReview}
-import cats.data.NonEmptyList
+
+import rover.input.ReviewParsing.{parseLines, parseReview}
+import rover.input.{Review, ReviewValidation}
 
 class ParsingTests extends AnyFlatSpec with Matchers {
 
   "parseReview" should "extract correct fields" in {
     val reviewLine = List("5", "https://images.dog.ceo/breeds/affenpinscher/n02110627_10437.jpg", "2013-04-17", "Augue donec...ok cool", "https://images.dog.ceo/breeds/puggle/IMG_095543.jpg", "Bandit|Duke|Pogo", "Joei B.", "Melinda G.", "2013-04-13", "+17953174861", "user1943@verizon.net", "+13494618669", "user4832@t-mobile.com", "110")
-    parseReview(reviewLine).toOption.get shouldEqual SitterReview("Joei B.", 5, "user1943@verizon.net")
+    parseReview(reviewLine).toOption.get shouldEqual Review("Joei B.", 5, "user1943@verizon.net")
   }
 
   "parseLines" should "remove csv header and construct Reviews with correct info" in {
@@ -20,8 +22,8 @@ class ParsingTests extends AnyFlatSpec with Matchers {
     )
 
     parseLines(lines).toOption.get should contain theSameElementsAs List(
-      SitterReview("Lauren B.", 5, "user4739@gmail.com"),
-      SitterReview("Leilani R.", 3, "user7508@t-mobile.com")
+      Review("Lauren B.", 5, "user4739@gmail.com"),
+      Review("Leilani R.", 3, "user7508@t-mobile.com")
     )
   }
 
@@ -64,7 +66,7 @@ class ParsingTests extends AnyFlatSpec with Matchers {
     )
 
     parseLines(lines).toEither match { // there is exactly one error message containing the expected header
-      case Left(NonEmptyList(errorMessage, Nil)) => errorMessage should include(SitterReviewValidators.expectedHeader)
+      case Left(NonEmptyList(errorMessage, Nil)) => errorMessage should include(ReviewValidation.expectedHeader)
       case resp => fail(s"result should have been invalid with one error message. instead: $resp")
     }
   }

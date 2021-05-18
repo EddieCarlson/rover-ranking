@@ -2,11 +2,20 @@ package rover
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import Scoring._
+
+import rover.scoring.Scoring._
 
 class ScoringTests extends AnyFlatSpec with Matchers {
   val tolerance: Double = 0.0001 // when comparing doubles, a tolerance must be used
   val jimProfScore: Double = 5.0 * 3 / 26
+
+  "ratings score" should "be the average (simple)" in {
+    ratingsScore(List(2, 3, 4)) shouldEqual 3.0 +- tolerance
+  }
+
+  it should "be the average" in {
+    ratingsScore(List(2, 2, 3)) shouldEqual 2.3333333333 +- tolerance
+  }
 
   "profile score" should "calculate simple case" in {
     profileScore("jim") shouldEqual jimProfScore +- tolerance

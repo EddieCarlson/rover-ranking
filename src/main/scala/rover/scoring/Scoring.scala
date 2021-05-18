@@ -1,9 +1,12 @@
-package rover
+package rover.scoring
 
-// standalone scoring calculations for profile and search score (ratings score excluded because it's simple)
+// standalone scoring calculations for the different types of sitter scores
 object Scoring {
   val alphabetSize = 26
   val profileScoreCoefficient = 5.0
+
+  // the average rating
+  def ratingsScore(ratings: List[Int]): Double = ratings.sum.toDouble / ratings.length
 
   // the fraction of distinct letters in the english alphabet (case-insensitive) that comprise the name
   def profileScore(name: String): Double = {

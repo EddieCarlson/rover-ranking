@@ -1,11 +1,13 @@
-package rover
+package rover.output
 
 import java.io.{File, PrintWriter}
 import scala.util.Using
 
 import cats.implicits._
 
-// writes a list of SitterScores to an output file (sitters.csv, here) in the expected format
+import rover.scoring.SitterScore
+
+// writes a list of `SitterScore`s to an output file (sitters.csv, here) in the expected format
 object SitterWriter {
   val outputHeader = "email,name,profile_score,ratings_score,search_score\n"
   val outputFileName = "sitters.csv"

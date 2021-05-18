@@ -5,8 +5,8 @@ Copyright 2021 Candidate
 ## Description:
 
 This program will read sitter reviews from a csv in a known format and produce a variety of ratings (profile score,
-ratings score, and search score) for each sitter (identified uniquely by their email address in the reviews). The
-program will produce a csv file named `sitters.csv` that will be written to the current directory. This file will
+ratings score, and search score) for each sitter (identified uniquely by their name and email address in the reviews).
+The program will produce a csv file named `sitters.csv` that will be written to the current directory. This file will
 contain the columns: [email, name, profile_score, ratings_score, search_score], and each row following the header will
 represent a sitter and their scores. The sitters will be ordered first by their search_score (desc), then by name (asc).
 email and name are text, the other fields are rational numbers between 0 and 5 (inclusive), rounded to 2 decimal
@@ -37,14 +37,16 @@ Note: the first sbt run may have a long startup time if has to download scala.
 
 ## Assumptions:
 
-* The filepath given as a program arg must point to a csv in the exact same format as the original `reviews.csv`
+* The filepath given as the program arg must point to a csv in the exact same format as the original `reviews.csv`
   (detailed error messgaes are returned, if not)
 * Sitters are sorted by rounded search scores (i.e. calculated search scores of 2.003 and 2.004 would be considered
   identical), then by name
+* Sitter uniqueness is determined by the product of name and email (in case two users have the same name...or for some
+  strange reason share an email)
 * For the sake of making an interesting validation system:
   * sitter_email requires an '@'
   * sitter_name must be non-empty
-  * rating must be an int between 0 and 5 (inclusive)
+  * rating must be an integer between 0 and 5 (inclusive)
     
 ## Parsing and Validation Error Reporting:
 * I now realize it was unnecessary, but I spent a good amount time making a robust yet unobtrusive parsing/validating

@@ -2,7 +2,10 @@ package rover
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import Scoring.{profileScore, searchScore}
+
+import rover.input.Review
+import rover.scoring.Scoring.{profileScore, searchScore}
+import rover.scoring.SitterScore
 
 class SitterScoreTests extends AnyFlatSpec with Matchers {
 
@@ -11,19 +14,19 @@ class SitterScoreTests extends AnyFlatSpec with Matchers {
   }
 
   it should "work for 1 review" in {
-    val review = SitterReview("jim", 2, "jim@email.com")
-    val profScore = profileScore(review.name)
+    val review = Review("jim", 2, "jim@email.com")
+    val profScore = profileScore(review.sitterName)
     val srchScore = searchScore(profScore, 2, 1)
 
     SitterScore.fromReviews(List(review)) shouldEqual List(SitterScore("jim", "jim@email.com", profScore, 2, srchScore))
   }
 
   it should "work for 2 reviews, different sitters" in {
-    val jim = SitterReview("jim", 2, "jim@email.com")
-    val jimProfScore = profileScore(jim.name)
+    val jim = Review("jim", 2, "jim@email.com")
+    val jimProfScore = profileScore(jim.sitterName)
     val jimSrchScore = searchScore(jimProfScore, 2, 1)
-    val bob = SitterReview("Bobby B.", 3, "bob@email.com")
-    val bobProfScore = profileScore(bob.name)
+    val bob = Review("Bobby B.", 3, "bob@email.com")
+    val bobProfScore = profileScore(bob.sitterName)
     val bobSrchScore = searchScore(bobProfScore, 3, 1)
 
     SitterScore.fromReviews(List(jim, bob)) should contain theSameElementsAs List(
@@ -33,15 +36,15 @@ class SitterScoreTests extends AnyFlatSpec with Matchers {
   }
 
   it should "work with repeat sitters" in {
-    val jim = SitterReview("jim", 2, "jim@email.com")
-    val jim2 = SitterReview("jim", 3, "jim@email.com")
-    val jim3 = SitterReview("jim", 5, "jim@email.com")
-    val jimProfScore = profileScore(jim.name)
+    val jim = Review("jim", 2, "jim@email.com")
+    val jim2 = Review("jim", 3, "jim@email.com")
+    val jim3 = Review("jim", 5, "jim@email.com")
+    val jimProfScore = profileScore(jim.sitterName)
     val jimRatingScore = 10.0 / 3
     val jimSrchScore = searchScore(jimProfScore, jimRatingScore, 3)
 
-    val bob = SitterReview("Bobby B.", 3, "bob@email.com")
-    val bobProfScore = profileScore(bob.name)
+    val bob = Review("Bobby B.", 3, "bob@email.com")
+    val bobProfScore = profileScore(bob.sitterName)
     val bobSrchScore = searchScore(bobProfScore, 3, 1)
 
     SitterScore.fromReviews(List(jim, jim2, bob, jim3)) should contain theSameElementsAs List(

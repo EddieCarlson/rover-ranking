@@ -1,7 +1,7 @@
-package rover
+package rover.scoring
 
-import Scoring.{profileScore, searchScore}
-import SitterScore.twoDecimal
+import rover.input.Review
+import rover.scoring.SitterScore.twoDecimal
 
 // represents a sitter and the various scores assigned to them, calculated from their aggregated reviews
 case class SitterScore(name: String, email: String, profileScore: Double, ratingsScore: Double, searchScore: Double)
@@ -27,16 +27,15 @@ object SitterScore {
   val twoDecimalFormat = "%.2f"
 
   def apply(name: String, email: String, ratings: List[Int]): SitterScore = { // (`apply` is the conventional name here)
-    val profScore = profileScore(name)
-    val ratingsLength = ratings.length // guaranteed non-empty
-    val ratingsScore = ratings.sum.toDouble / ratingsLength
-    val srchScore = searchScore(profScore, ratingsScore, ratingsLength)
-    SitterScore(name, email, profScore, ratingsScore, srchScore)
+    val profileScore = Scoring.profileScore(name)
+    val ratingsScore = Scoring.ratingsScore(ratings)
+    val searchScore = Scoring.searchScore(profileScore, ratingsScore, ratings.length)
+    SitterScore(name, email, profileScore, ratingsScore, searchScore)
   }
 
-  // aggregates a list of SitterReviews into a list of SitterScores (one element per distinct sitter in input list)
-  def fromReviews(reviews: List[SitterReview]): List[SitterScore] =
-    reviews.groupBy(review => (review.name, review.email)).map {
+  // aggregates a list of `Review`s into a list of SitterScores (one element per distinct sitter in input list)
+  def fromReviews(reviews: List[Review]): List[SitterScore] =
+    reviews.groupBy(review => (review.sitterName, review.email)).map {
       case ((name, email), reviews) => SitterScore(name, email, reviews.map(_.rating))
     }.toList
 
